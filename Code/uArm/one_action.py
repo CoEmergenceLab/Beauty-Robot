@@ -1,5 +1,5 @@
 '''
-This is a kind of dummy script that mimic one episode of the Beauty robot's actions.
+This is a kind of dummy script that mimics one stat/action pair of the Beauty robot's actions.
 It mimics commands from the rl model's controller to select a pipette, collect attract/repellent solution
 and drop it on the plate at a particular location (that the controller determines) before returning to
 its home position.
@@ -8,9 +8,25 @@ its home position.
 
 import os
 import sys
+import serial
 from time import sleep
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
 from uarm.wrapper import SwiftAPI
+
+
+
+# configure the Serial port
+def serial_port(port, baudrate=9600):
+	ser = serial.Serial(
+	    # port='/dev/ttyS1',\
+        port=port,\
+	    baudrate=baud,\
+	    parity=serial.PARITY_NONE,\
+	    stopbits=serial.STOPBITS_ONE,\
+	    bytesize=serial.EIGHTBITS,\
+	    timeout=None)
+	print("Connected to: " + ser.portstr)
+	return ser
 
 
 def main():
@@ -63,6 +79,7 @@ def main():
 
     # extract solution
     # TODO - need to control the syringe pump stepper
+    syringe_pump_serial = serial_port("/dev/ttyS1", 9600)
 
 
 
