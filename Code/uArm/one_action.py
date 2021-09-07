@@ -20,7 +20,7 @@ def serial_connect(port, baudrate=9600, timeout=1):
 	ser = serial.Serial(
 	    # port='/dev/ttyS1',\
         port=port,\
-	    baudrate=baud,\
+	    baudrate=baudrate,\
 	    parity=serial.PARITY_NONE,\
 	    stopbits=serial.STOPBITS_ONE,\
 	    bytesize=serial.EIGHTBITS,\
@@ -35,7 +35,7 @@ def main():
     # === INITIALIZE ARM ===
     swift = SwiftAPI(filters={'hwid': 'USB VID:PID=2341:0042'})
 
-    sleep(2)
+	sleep(2)
     print('device info: ')
     print(swift.get_device_info())
     swift.waiting_ready()
@@ -46,12 +46,12 @@ def main():
     print(position)
 
     # Set arm to home position
-    HOME = (66, 0, 30)
+    HOME = (70, 0, 30)
     swift.set_wrist(90)
-    swift.set_position(*HOME, speed=10000, wait=True) # Home
+    swift.set_position(*HOME, speed=1000, wait=True) # Home
 
     # === INITIALIZE SERIAL COMMUNICATION WITH SYRINGE PUMP ===
-    syringe_pump_serial = serial_connect("/dev/cu.URT1", 9600)
+    # syringe_pump_serial = serial_connect("/dev/cu.usbserial-11JP0368", 9600)
 
     # === COORDINATES & AMOUNTS ===
     # pipette tip location coords
@@ -137,14 +137,9 @@ def main():
             photo_taken = False
 
         # move arm to pipette tip location and pick up pipette
-        swift.set_position(tip_coords[tip_idx][0],
-                        tip_coords[tip_idx][1],
-                        z=35.24,
-                        speed=20000,
-                        timeout=30,
-                        wait=True)  # current pipette location
-        swift.set_position(z=tip_coords[tip_idx][2] + 19 speed=20000, timeout=30, wait=True)  # acquire pipette
-        swift.set_position(z=tip_coords[tip_idx][2] + 9, wait=True)  # acquire pipette... slowly
+        swift.set_position(tip_coords[tip_idx][0], tip_coords[tip_idx][1], z=35.24, speed=20000, timeout=30, wait=True)  # current pipette location
+        swift.set_position(z=tip_coords[tip_idx][2] + 19, speed=20000, timeout=30, wait=True)  # acquire pipette
+        swift.set_position(z=tip_coords[tip_idx][2] + 9, speed=200, wait=True)  # acquire pipette... slowly
         swift.set_position(z=tip_coords[tip_idx][2] + 4, speed=200, timeout=30, wait=True)  # acquire pipette
         swift.set_position(z=tip_coords[tip_idx][2], speed=200, timeout=30, wait=True)  # acquire pipette... got it
         sleep(0.1)
@@ -154,12 +149,7 @@ def main():
 
         # move arm to location of attractant/repellent selected by RL controller
         curr_solution_loc = attractants["peptone"][0]["location"]
-        swift.set_position(x=curr_solution_loc[0],
-                        y=curr_solution_loc[1],
-                        z=30,
-                        speed=20000,
-                        timeout=30,
-                        wait=True)  # current attractant/repellent
+        swift.set_position(x=curr_solution_loc[0], y=curr_solution_loc[1], z=30, speed=20000, timeout=30, wait=True)  # current attractant/repellent
         swift.set_position(z=curr_solution_loc[2] + 19, speed=20000, timeout=30, wait=True)
         swift.set_position(z=curr_solution_loc[2] + 9, speed=300, timeout=30, wait=True)
         swift.set_position(z=curr_solution_loc[2] + 4, speed=300, timeout=30, wait=True)  # get closer
@@ -173,12 +163,7 @@ def main():
 
 
         # move arm to location on plate (that you get from rl controller)
-        swift.set_position(x=plate_coords[0][0],
-                        y=plate_coords[0][1],
-                        z=25,
-                        speed=20000,
-                        timeout=30,
-                        wait=True)  # current plate location
+        swift.set_position(x=plate_coords[0][0], y=plate_coords[0][1], z=25, speed=20000, timeout=30, wait=True)  # current plate location
         swift.set_position(z=plate_coords[0][2] + 19, speed=20000, timeout=30, wait=True)
         swift.set_position(z=plate_coords[0][2] + 9, speed=300, timeout=30, wait=True)
         swift.set_position(z=plate_coords[0][2] + 4, speed=300, timeout=30, wait=True) # get closer
@@ -191,12 +176,7 @@ def main():
         swift.set_position(z=25, speed=20000, timeout=30, wait=True) # go back up
 
         # move arm to trash location
-        swift.set_position(x=trash_coords[0],
-                        y=trash_coords[1],
-                        z=30,
-                        speed=20000,
-                        timeout=30,
-                        wait=True)  # current plate location
+        swift.set_position(x=trash_coords[0], y=trash_coords[1], z=30, speed=20000, timeout=30, wait=True)  # current plate location
         swift.set_position(z=trash_coords[2] + 19, speed=20000, timeout=30, wait=True)
         swift.set_position(z=trash_coords[2], speed=500, timeout=30, wait=True)
 
