@@ -31,8 +31,6 @@ def serial_connect(port, baudrate=9600, timeout=1):
 def main():
     print(__doc__)
 
-    print("hi")
-
     # === INITIALIZE ARM ===
     swift = SwiftAPI(filters={'hwid': 'USB VID:PID=2341:0042'})
 
@@ -50,6 +48,7 @@ def main():
     HOME = (100, 0, 20)
     swift.set_buzzer(1000, 0.5)
     swift.set_wrist(90)
+    print("moving arm to home position...")
     pos_status = swift.set_position(*HOME, speed=1000, wait=True)  # Home
     print("pos_status: ", pos_status)
     sleep(1)
@@ -104,7 +103,7 @@ def main():
     plate_coords = ((130, 0, -42), (90, 0, -42))
 
     # trash location
-    trash_coords = (160, -115, 30)
+    trash_coords = (160, -115, 50)
 
     # === LOAD WORLD MODEL ===
     print("loading world model...")
@@ -154,7 +153,7 @@ def main():
 
         # move arm to location of attractant/repellent selected by RL controller
         curr_solution_loc = attractants["peptone"][0]["location"]
-        print("extract attractant/repellent solution...")
+        print("extracting attractant/repellent solution...")
         swift.set_position(x=curr_solution_loc[0],
                            y=curr_solution_loc[1],
                            z=30,
@@ -174,7 +173,7 @@ def main():
         sleep(1)
 
         # move arm to location on plate (that you get from rl controller)
-        print("dispense attractant/repellent solution...")
+        print("dispensing attractant/repellent solution...")
         swift.set_position(x=plate_coords[0][0],
                            y=plate_coords[0][1],
                            z=25, speed=20000,
@@ -195,7 +194,7 @@ def main():
         # move arm to trash location
         swift.set_position(x=trash_coords[0],
                            y=trash_coords[1],
-                           z=35,
+                           z=75,
                            speed=20000,
                            timeout=30,
                            wait=True)  # current plate location
@@ -212,9 +211,11 @@ def main():
         sleep(1)
 
         # Go back to Home position
+        print("moving arm back to home position...")
         swift.set_position(*HOME, speed=10000, wait=True)  # Home
 
         # wait (30 minutes in the real system, 10 secs here for testing)
+        print("waiting for next action...")
         sleep(10)
 
 
