@@ -4,6 +4,7 @@ import time
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
 from uarm.wrapper import SwiftAPI
 
+
 def position_relative_to_zero(swift, zero_position, x_relative, y_relative, z_relative):
     x_0 = zero_position[0]
     y_0 = zero_position[1]
@@ -17,7 +18,6 @@ def position_relative_to_zero(swift, zero_position, x_relative, y_relative, z_re
     print("set_pos_status: ", set_pos_status)
     time.sleep(0.5)
     return set_pos_status
-
 
 
 def main():
