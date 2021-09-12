@@ -1,0 +1,22 @@
+EESchema-LIBRARY Version 2.4
+#encoding utf-8
+#
+# DotStar
+#
+DEF DotStar A 0 40 Y Y 1 F N
+F0 "A" -150 300 50 H V C CNN
+F1 "DotStar" 150 -350 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+S -150 250 150 -300 0 1 0 N
+X 5V ~ 0 350 100 D 50 50 1 1 W
+X CI ~ -250 50 100 R 50 50 1 1 I
+X CO ~ 250 50 100 L 50 50 1 1 O
+X DI ~ -250 -50 100 R 50 50 1 1 I
+X DO ~ 250 -50 100 L 50 50 1 1 O
+X GND ~ 0 -400 100 U 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+#End Library
