@@ -1,3 +1,4 @@
 (sym_lib_table
   (lib (name bigeasydriver)(type Legacy)(uri /Users/carlos/Documents/kicad/projects/PhylumScope/bigeasydriver.lib)(options "")(descr ""))
+  (lib (name Beauty-AI-Robot-rescue)(type Legacy)(uri ${KIPRJMOD}/Beauty-AI-Robot-rescue.lib)(options "")(descr ""))
 )
