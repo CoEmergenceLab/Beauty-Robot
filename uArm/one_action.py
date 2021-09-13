@@ -54,7 +54,7 @@ def main():
     sleep(1)
 
     # === INITIALIZE SERIAL COMMUNICATION WITH SYRINGE PUMP ===
-    # syringe_pump_serial = serial_connect("/dev/cu.usbserial-11JP0368", 9600)
+    # syringe_pump_serial = serial_connect("/dev/cu.usbserial-11JP0368", 19200)
 
     # === COORDINATES & AMOUNTS ===
     # pipette tip location coords
