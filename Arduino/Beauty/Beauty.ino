@@ -27,6 +27,7 @@
 #include <SPI.h>
 #include <Adafruit_DotStar.h>
 #include <Servo.h>
+#include <avr/pgmspace.h>
 
 
 /************************
@@ -125,8 +126,13 @@ boolean serialStrReady = false;
  * "t" = turn off training mode
  * "V" = servo control on
  * "v" = servo control off
+ * "COM" = receive request to establish serial communiction (optional)
+ * "ACK" = send back acknowledgment (optional)
  */
-
+const char COM[] PROGMEM = "COM";
+const char ACK[] PROGMEM = "ACK\n";
+const char invalid[] PROGMEM = "Invalid command: [";
+const char invalid1[] PROGMEM = "]\n";
 
 
 void setup() {
@@ -186,22 +192,22 @@ void processSerial(){
   // process serial commands as they are read in
   int num = serialStr.toInt();
   
-  if(serialStr.equals("+")) {
+  if(serialStr.equals(F("+"))) {
     bolus(PUSH);
-  } else if(serialStr.equals("-")) {
+  } else if(serialStr.equals(F("-"))) {
     bolus(PULL);
-  } else if(serialStr.equals("S") {
+  } else if(serialStr.equals(F("S"))) {
     digitalWrite(driverSleepPin, LOW); // put stepper driver to sleep
-  } else if(serialStr.equals("s")) {
+  } else if(serialStr.equals(F("s"))) {
     digitalWrite(driverSleepPin, HIGH); // take stepper driver out of sleep mode
     delay(1);
-  } else if(serialStr.equals("V") && TRAINING_MODE = true) {
+  } else if(serialStr.equals(F("V")) && TRAINING_MODE == true) {
     SERVO_CONTROL = true;
-  } else if(serialStr.equals("v") ) {
+  } else if(serialStr.equals(F("v"))) {
     SERVO_CONTROL = false;
-  } else if(serialStr.equals("T")) {
+  } else if(serialStr.equals(F("T"))) {
     TRAINING_MODE = true;
-  } else if(serialStr.equals("t")) {
+  } else if(serialStr.equals(F("t"))) {
     TRAINING_MODE = false;
     SERVO_CONTROL = false;
   } else if(serialStr == (String(num))) { // it's a number
@@ -211,12 +217,14 @@ void processSerial(){
     } else {
       mLBolus = num / 1000.0; // convert from micro to milli
     }
+  } else if(serialStr.equals(COM)) { // establish communication (optional)
+    Serial.write(ACK); 
   } else {
-    Serial.write("Invalid command: ["); 
+    Serial.write(invalid); 
     char buf[40];
     serialStr.toCharArray(buf, 40);
     Serial.write(buf);
-    Serial.write("]\n"); 
+    Serial.write(invalid1); 
   }
   
   serialStrReady = false;
@@ -253,7 +261,7 @@ void bolus(int direction) {
 }
 
 /* -- MOVE SERVO -- */
-void setServo(prevPos, newPos) {
+void setServo(int prevPos, int newPos) {
   int pos;
   if (prevPos > newPos){
     for(pos=prevPos; pos>=newPos; pos--) {      // goes from 180 degrees to 0 degrees                              
@@ -266,7 +274,7 @@ void setServo(prevPos, newPos) {
       delay(15);                               // waits 15ms for the servo to reach the position 
     }
   } else {
-    myservo.write(newPos);
+    myServo.write(newPos);
   }
 
 }
