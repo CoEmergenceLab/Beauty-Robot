@@ -186,6 +186,8 @@ void readSerial() {
 
 void processSerial(){
   // process serial commands as they are read in
+  int num = serialStr.toInt();
+  
   if(serialStr.equals("+")) {
     bolus(PUSH);
   } else if(serialStr.equals("-")) {
@@ -204,8 +206,7 @@ void processSerial(){
   } else if(serialStr.equals("t")) {
     TRAINING_MODE = false;
     SERVO_CONTROL = false;
-  } else if(serialStr.toInt() != 0) { // it's a number
-    int num = serialStr.toInt();
+  } else if(serialStr == (String(num))) { // it's a number
     if(SERVO_CONTROL) {
       setServo(servoPrevPos, num);
       servoPrevPos = num;
