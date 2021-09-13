@@ -102,8 +102,6 @@ uint32_t color = 0xFFFFFF;
 SERVO MOTOR
 ***********/
 static const uint8_t servoPin = 9;
-const static bool String COM_ANGLE = "COM_ANGLE";
-const static bool String ACK_ANGLE = "ACK_ANGLE";
 int servoPrevPos = 0;
 Servo myServo;
 bool TRAINING_MODE = false; // default to training mode off (no servo)
