@@ -1,3 +1,4 @@
+#include <avr/pgmspace.h>
 // Controls a stepper motor in a syringe pump
 
 // Serial commands:
@@ -44,6 +45,9 @@ char charBuf[16];
 String serialStr = "";
 boolean serialStrReady = false;
 
+const char invalid[] PROGMEM = "Invalid command: [";
+const char invalid1[] PROGMEM = "]\n";
+
 void setup(){
   /* Motor Setup */ 
   pinMode(motorDirPin, OUTPUT);
@@ -81,19 +85,19 @@ void readSerial() {
 
 void processSerial(){
 	// process serial commands as they are read in
-	if(serialStr.equals("+")) {
+	if(serialStr.equals(F("+"))) {
 		bolus(PUSH);
-	} else if(serialStr.equals("-")) {
+	} else if(serialStr.equals(F("-"))) {
 		bolus(PULL);
 	} else if(serialStr.toInt() != 0) { // it's a number
 	  int uLbolus = serialStr.toInt();
 	  mLBolus = uLbolus / 1000.0; // convert from micro to milli
   } else {
-    Serial.write("Invalid command: ["); 
+    Serial.write(invalid);
     char buf[40];
     serialStr.toCharArray(buf, 40);
     Serial.write(buf);
-    Serial.write("]\n"); 
+    Serial.write(invalid1); 
   }
   serialStrReady = false;
 	serialStr = "";
