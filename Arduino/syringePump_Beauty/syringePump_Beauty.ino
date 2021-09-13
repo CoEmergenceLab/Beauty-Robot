@@ -20,8 +20,8 @@ static const long ustepsPerMM = MICROSTEPS_PER_STEP * STEPS_PER_REVOLUTION / THR
 static const long ustepsPerML = (MICROSTEPS_PER_STEP * STEPS_PER_REVOLUTION * SYRINGE_BARREL_LENGTH_MM) / (SYRINGE_VOLUME_ML * THREADED_ROD_PITCH );
 
 /* -- Pin definitions -- */
-static const int motorDirPin = 2;
-static const int motorStepPin = 3;
+static const uint8_t motorDirPin = 2;
+static const uint8_t motorStepPin = 3;
 
 /* -- Enums and constants -- */
 enum{PUSH,PULL}; // syringe movement direction
@@ -34,7 +34,7 @@ static const float mLBolusSteps[9] = {0.001, 0.002, 0.0025, 0.003, 0.0035, 0.004
 float mLBolus = 0.002; // default bolus size (in mL)
 float mLBigBolus = 0.010; // default large bolus size (in mL)
 float mLUsed = 0.0;
-int mLBolusStepIdx = 0; // 0.001mL (1uL) increments at first
+uint8_t mLBolusStepIdx = 0; // 0.001mL (1uL) increments at first
 float mLBolusStep = mLBolusSteps[mLBolusStepIdx];
 
 long stepperPos = 0; //in microsteps
@@ -119,7 +119,7 @@ void bolus(int direction) {
 	}
  
   // extract or dispense solution
-  for(long i=0; i < steps; i++){ 
+  for(unsigned long i=0; i < steps; i++){ 
     digitalWrite(motorStepPin, HIGH); 
     delayMicroseconds(SPEED_MICROSECONDS_DELAY); 
 
