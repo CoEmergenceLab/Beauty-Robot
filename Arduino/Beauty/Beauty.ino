@@ -134,7 +134,6 @@ const char ACK[] PROGMEM = "ACK\n";
 const char invalid[] PROGMEM = "Invalid command: [";
 const char invalid1[] PROGMEM = "]\n";
 
-
 void setup() {
   // Stepper Motor Setup
   pinMode(motorDirPin, OUTPUT);
