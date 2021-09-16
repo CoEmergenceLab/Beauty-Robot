@@ -45,8 +45,8 @@ char charBuf[16];
 String serialStr = "";
 boolean serialStrReady = false;
 
-const char invalid[] PROGMEM = "Invalid command: [";
-const char invalid1[] PROGMEM = "]\n";
+const char invalid[] = "Invalid command: [";
+const char invalid1[] = "]\n";
 
 void setup(){
   /* Motor Setup */ 

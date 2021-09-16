@@ -27,7 +27,6 @@
 #include <SPI.h>
 #include <Adafruit_DotStar.h>
 #include <Servo.h>
-#include <avr/pgmspace.h>
 
 
 /************************
@@ -129,10 +128,10 @@ boolean serialStrReady = false;
  * "COM" = receive request to establish serial communiction (optional)
  * "ACK" = send back acknowledgment (optional)
  */
-const char COM[] PROGMEM = "COM";
-const char ACK[] PROGMEM = "ACK\n";
-const char invalid[] PROGMEM = "Invalid command: [";
-const char invalid1[] PROGMEM = "]\n";
+const char COM[] = "COM";
+const char ACK[] = "ACK\n";
+const char invalid[] = "Invalid command: [";
+const char invalid1[] = "]\n";
 
 void setup() {
   // Stepper Motor Setup
@@ -216,7 +215,7 @@ void processSerial(){
     } else {
       mLBolus = num / 1000.0; // convert from micro to milli
     }
-  } else if(serialStr.equals(COM)) { // establish communication (optional)
+  } else if(serialStr.equals(F("COM"))) { // establish communication (optional)
     Serial.write(ACK); 
   } else {
     Serial.write(invalid); 
@@ -261,19 +260,29 @@ void bolus(int direction) {
 
 /* -- MOVE SERVO -- */
 void setServo(int prevPos, int newPos) {
-  int pos;
-  if (prevPos > newPos){
-    for(pos=prevPos; pos>=newPos; pos--) {      // goes from 180 degrees to 0 degrees                              
-      myServo.write(pos);                       // tell servo to go to position in variable 'pos' 
-      delay(15);                                // waits 15ms for the servo to reach the position 
-    }
-  } else if (prevPos < newPos){
-    for(pos=prevPos; pos<=newPos; pos++) {     // goes from 180 degrees to 0 degrees                                
-      myServo.write(pos);                      // tell servo to go to position in variable 'pos' 
-      delay(15);                               // waits 15ms for the servo to reach the position 
-    }
-  } else {
-    myServo.write(newPos);
-  }
+//  int pos;
+//  if (prevPos > newPos){
+//    for(pos=prevPos; pos>=newPos; pos-=1) {      // goes from 180 degrees to 0 degrees                              
+//      myServo.write(pos);                       // tell servo to go to position in variable 'pos' 
+//      delay(15);                                // waits 15ms for the servo to reach the position 
+//    }
+//  } else if(prevPos < newPos){
+//    for(pos=prevPos; pos<=newPos; pos+=1) {     // goes from 180 degrees to 0 degrees                                
+//      myServo.write(pos);                      // tell servo to go to position in variable 'pos' 
+//      delay(15);                               // waits 15ms for the servo to reach the position 
+//    }
+//  } else {
+//    myServo.write(newPos);
+//  }
+
+
+  myServo.write(120);
+  delay(1000);
+  myServo.write(90);
+  delay(1000);
+  myServo.write(60);
+  delay(1000);
+  myServo.write(90);
+    
 
 }
