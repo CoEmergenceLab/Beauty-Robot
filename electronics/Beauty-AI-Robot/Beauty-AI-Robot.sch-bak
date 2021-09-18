@@ -25,7 +25,7 @@ F 3 "https://www.arduino.cc/en/Main/arduinoBoardUno" H 6100 3700 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L BigEasyDriver:BigEasyDriver A2
+L Beauty-AI-Robot-rescue:BigEasyDriver-BigEasyDriver A2
 U 1 1 613E90F8
 P 3900 3300
 F 0 "A2" H 3875 4031 50  0000 C CNN
@@ -219,11 +219,7 @@ Wire Wire Line
 Wire Wire Line
 	3600 4950 3600 5550
 Wire Wire Line
-	3600 5550 5150 5550
-Wire Wire Line
-	5150 5550 5150 4200
-Wire Wire Line
-	5150 4200 5600 4200
+	3600 5550 5000 5550
 Wire Wire Line
 	3600 4850 3450 4850
 Wire Wire Line
@@ -266,4 +262,19 @@ F 3 "" H 2450 4500 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	2450 4500 2450 4550
+$Comp
+L Device:R_US R1
+U 1 1 613D9CFF
+P 5000 5400
+F 0 "R1" H 5068 5446 50  0000 L CNN
+F 1 "470" H 5068 5355 50  0000 L CNN
+F 2 "" V 5040 5390 50  0001 C CNN
+F 3 "~" H 5000 5400 50  0001 C CNN
+	1    5000 5400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5000 5250 5000 4200
+Wire Wire Line
+	5000 4200 5600 4200
 $EndSCHEMATC
