@@ -29,32 +29,41 @@
 #include <Servo.h>
 
 
-/************************
-SYRINGE PUMP MOTOR DRIVER
-************************/
+/******************************
+MOTOR DRIVERS FOR SYRINGE PUMPS
+******************************/
 // Serial commands:
 // Set serial baud rate to 19200 and terminate commands with newlines.
 // Send a number, e.g. "100", to set bolus size.
 // Send a "+" to push that size bolus.
 // Send a "-" to pull that size bolus.
+// Two syringe pumps are being used: 
+// one for dropping attractants/repellents in the bacterial cultures
+// and one for dispensing a bioremediating solution into a contaminated soil sampole
 
 /* -- Constants -- */
 #define SYRINGE_VOLUME_ML 1.0
 #define SYRINGE_BARREL_LENGTH_MM 80.0 // mm
 
 #define THREADED_ROD_PITCH 2 // mm
+#define THREADED_ROD_PITCH_SOIL 1.25
 #define STEPS_PER_REVOLUTION 200.0
 #define MICROSTEPS_PER_STEP 16.0
 
 #define SPEED_MICROSECONDS_DELAY 500 // longer delay = lower speed
 
 static const long ustepsPerMM = MICROSTEPS_PER_STEP * STEPS_PER_REVOLUTION / THREADED_ROD_PITCH;
-static const long ustepsPerML = (MICROSTEPS_PER_STEP * STEPS_PER_REVOLUTION * SYRINGE_BARREL_LENGTH_MM) / (SYRINGE_VOLUME_ML * THREADED_ROD_PITCH );
+static const long ustepsPerML = (MICROSTEPS_PER_STEP * STEPS_PER_REVOLUTION * SYRINGE_BARREL_LENGTH_MM) / (SYRINGE_VOLUME_ML * THREADED_ROD_PITCH);
+static const long ustepsPerMM_SOIL = MICROSTEPS_PER_STEP * STEPS_PER_REVOLUTION / THREADED_ROD_PITCH_SOIL;
+static const long ustepsPerML_SOIL = (MICROSTEPS_PER_STEP * STEPS_PER_REVOLUTION * SYRINGE_BARREL_LENGTH_MM) / (SYRINGE_VOLUME_ML * THREADED_ROD_PITCH_SOIL);
 
 /* -- Pin definitions -- */
 static const uint8_t motorDirPin = 2;
 static const uint8_t motorStepPin = 3;
 static const uint8_t driverSleepPin = 4;
+static const uint8_t motorDirPinSoil = 5;
+static const uint8_t motorStepPinSoil = 6;
+static const uint8_t driverSleepPinSoil = 7;
 
 /* -- Enums and constants -- */
 enum{PUSH,PULL}; // syringe movement direction
@@ -64,7 +73,7 @@ static const float mLBolusSteps[9] = {0.001, 0.002, 0.0025, 0.003, 0.0035, 0.004
 //static const float mLBolusSteps[9] = {0.010, 0.025, 0.050, 0.100, 0.250, 0.500, 1.000, 5.000, 10.000};
 
 /* -- Default Parameters -- */
-float mLBolus = 0.002; // default bolus size (in mL)
+float mLBolus = 0.005; // default bolus size (in mL)
 float mLBigBolus = 0.010; // default large bolus size (in mL)
 float mLUsed = 0.0;
 uint8_t mLBolusStepIdx = 0; // 0.001mL (1uL) increments at first
@@ -72,6 +81,8 @@ float mLBolusStep = mLBolusSteps[mLBolusStepIdx];
 
 long stepperPos = 0; // in microsteps
 char charBuf[16];
+
+bool SOIL_STEPPER = false; // flag for soil stepper use
 
 
 /*******************
@@ -105,7 +116,7 @@ static const uint8_t servoPin = 9;
 int servoPrevPos = 0;
 Servo myServo;
 bool TRAINING_MODE = false; // default to training mode off (no servo)
-bool SERVO_CONTROL = false; // if trining moe = true we need a flag to determine when to receive angles for the servo
+bool SERVO_CONTROL = false; // if trining mode = true we need a flag to determine when to receive angles for the servo
 
 
 /*******************
@@ -125,6 +136,8 @@ boolean serialStrReady = false;
  * "t" = turn off training mode
  * "V" = servo control on
  * "v" = servo control off
+ * "L" = soil stepper control on
+ * "l" = soil stepper control off
  * "COM" = receive request to establish serial communiction (optional)
  * "ACK" = send back acknowledgment (optional)
  */
@@ -140,12 +153,18 @@ void setup() {
   pinMode(driverSleepPin, OUTPUT);
   digitalWrite(driverSleepPin, HIGH);        // make sure stepper driver is awake to start
 
+  // Stepper Motor Setup (soil)
+  pinMode(motorDirPinSoil, OUTPUT);
+  pinMode(motorStepPinSoil, OUTPUT);
+  pinMode(driverSleepPinSoil, OUTPUT);
+  digitalWrite(driverSleepPinSoil, HIGH);    // make sure stepper driver is awake to start
+
   // servo motor
   myServo.attach(servoPin);
   
   Serial.begin(19200);                      // enable the hardware serial port
 
-  Serial.println(F("Syringe pump ready!"));
+  Serial.println(F("Syringe pump(s) ready!"));
   Serial.println(F("Servo ready!"));
 
   // initialize DotStar LEDs
@@ -191,13 +210,15 @@ void processSerial(){
   int num = serialStr.toInt();
   
   if(serialStr.equals(F("+"))) {
-    bolus(PUSH);
+    bolus(PUSH, SOIL_STEPPER);
   } else if(serialStr.equals(F("-"))) {
-    bolus(PULL);
+    bolus(PULL, SOIL_STEPPER);
   } else if(serialStr.equals(F("S"))) {
     digitalWrite(driverSleepPin, LOW); // put stepper driver to sleep
+    digitalWrite(driverSleepPinSoil, LOW); // put stepper driver to sleep (soil)
   } else if(serialStr.equals(F("s"))) {
     digitalWrite(driverSleepPin, HIGH); // take stepper driver out of sleep mode
+    digitalWrite(driverSleepPinSoil, HIGH); // take stepper driver out of sleep mode (soil)
     delay(1);
   } else if(serialStr.equals(F("V")) && TRAINING_MODE == true) {
     SERVO_CONTROL = true;
@@ -205,9 +226,14 @@ void processSerial(){
     SERVO_CONTROL = false;
   } else if(serialStr.equals(F("T"))) {
     TRAINING_MODE = true;
+    SOIL_STEPPER = false; // not using soil stepper during training
   } else if(serialStr.equals(F("t"))) {
     TRAINING_MODE = false;
     SERVO_CONTROL = false;
+  } else if(serialStr.equals(F("L"))) {
+    SOIL_STEPPER = true; // soil stepper control on
+  } else if(serialStr.equals(F("l"))) {
+    SOIL_STEPPER = false; // soil stepper control off
   } else if(serialStr == (String(num))) { // it's a number
     if(SERVO_CONTROL) {
       setServo(servoPrevPos, num);
@@ -229,33 +255,61 @@ void processSerial(){
   serialStr = "";
 }
 
-/* -- MOVE STEPPER -- */
-void bolus(int direction) {
+/* -- MOVE STEPPER(S) -- */
+void bolus(int direction, bool soilStepper) {
   // Will not return until stepper is done moving.
+
+  if(soilStepper) {
+    // -- soil stepper -- //
+    // change units to steps
+    long steps = mLBolus * ustepsPerML_SOIL;
+    if(direction == PUSH) {
+      digitalWrite(motorDirPinSoil, HIGH);
+      steps = mLBolus * ustepsPerML_SOIL;
+      mLUsed += mLBolus; // increment how much we've used
+    } else if(direction == PULL) {
+      digitalWrite(motorDirPinSoil, LOW);
+      if((mLUsed-mLBolus) > 0) {
+        mLUsed -= mLBolus;
+      } else {
+        mLUsed = 0;
+      }
+    }
+    
+    // extract or dispense solution
+    for(unsigned long i=0; i < steps; i++){ 
+      digitalWrite(motorStepPinSoil, HIGH); 
+      delayMicroseconds(SPEED_MICROSECONDS_DELAY); 
   
-  // change units to steps
-  long steps = mLBolus * ustepsPerML;
-  if(direction == PUSH) {
-    digitalWrite(motorDirPin, HIGH);
-    steps = mLBolus * ustepsPerML;
-    mLUsed += mLBolus; // increment how much we've used
-  } else if(direction == PULL) {
-    digitalWrite(motorDirPin, LOW);
-    if((mLUsed-mLBolus) > 0) {
-      mLUsed -= mLBolus;
-    } else {
-      mLUsed = 0;
+      digitalWrite(motorStepPinSoil, LOW); 
+      delayMicroseconds(SPEED_MICROSECONDS_DELAY); 
+    }
+  } else {
+    // -- main (attractants/repellents) stepper -- //
+    // change units to steps
+    long steps = mLBolus * ustepsPerML;
+    if(direction == PUSH) {
+      digitalWrite(motorDirPin, HIGH);
+      steps = mLBolus * ustepsPerML;
+      mLUsed += mLBolus; // increment how much we've used
+    } else if(direction == PULL) {
+      digitalWrite(motorDirPin, LOW);
+      if((mLUsed-mLBolus) > 0) {
+        mLUsed -= mLBolus;
+      } else {
+        mLUsed = 0;
+      }
+    }
+   
+    // extract or dispense solution
+    for(unsigned long i=0; i < steps; i++){ 
+      digitalWrite(motorStepPin, HIGH); 
+      delayMicroseconds(SPEED_MICROSECONDS_DELAY); 
+  
+      digitalWrite(motorStepPin, LOW); 
+      delayMicroseconds(SPEED_MICROSECONDS_DELAY); 
     }
   }
- 
-  // extract or dispense solution
-  for(unsigned long i=0; i < steps; i++){ 
-    digitalWrite(motorStepPin, HIGH); 
-    delayMicroseconds(SPEED_MICROSECONDS_DELAY); 
-
-    digitalWrite(motorStepPin, LOW); 
-    delayMicroseconds(SPEED_MICROSECONDS_DELAY); 
-  } 
 }
 
 /* -- MOVE SERVO -- */
