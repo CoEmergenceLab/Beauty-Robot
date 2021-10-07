@@ -116,7 +116,7 @@ static const uint8_t servoPin = 9;
 int servoPrevPos = 0;
 Servo myServo;
 bool TRAINING_MODE = false; // default to training mode off (no servo)
-bool SERVO_CONTROL = false; // if trining mode = true we need a flag to determine when to receive angles for the servo
+bool SERVO_CONTROL = false; // if training mode = true we need a flag to determine when to receive angles for the servo
 
 
 /*******************
@@ -138,7 +138,7 @@ boolean serialStrReady = false;
  * "v" = servo control off
  * "L" = soil stepper control on
  * "l" = soil stepper control off
- * "COM" = receive request to establish serial communiction (optional)
+ * "COM" = receive request to establish serial communication (optional)
  * "ACK" = send back acknowledgment (optional)
  */
 const char COM[] = "COM";
