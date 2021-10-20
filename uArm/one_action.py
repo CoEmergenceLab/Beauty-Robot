@@ -73,12 +73,12 @@ def main():
 
     # === COORDINATES & AMOUNTS ===
     # pipette tip location coords
-    tip_coords = ((110, -101.31, -39.11), (110, -101.31, -39.11), (110, -101.31, -39.11))
+    tip_coords = ((120, -101.31, -84.55), (120, -101.31, -84.55), (120, -101.31, -84.55))
     tip_idx = 0
 
     # attractant/repellent locations and amounts (all amounts are in microliters)
     attractants = {
-        "peptone" : ({"concentration" : "high", "amount" : 20, "location" : (125, -103.78, -41.37)},
+        "peptone" : ({"concentration" : "high", "amount" : 20, "location" : (165, -103.78, -80.37)},
                     {"concentration" : "low", "amount" : 20, "location" : (125, -107.01, -41.37)},
                     {"concentration" : "high", "amount" : 5, "location" : (125, -103.78, -41.37)},
                     {"concentration" : "low", "amount" : 5, "location" : (125, -107.01, -41.37)}),
@@ -157,7 +157,9 @@ def main():
         swift.set_position(z=tip_coords[tip_idx][2] + 19, speed=200, timeout=30, wait=True)  # acquire pipette
         swift.set_position(z=tip_coords[tip_idx][2] + 9, speed=2, wait=True)  # acquire pipette... slowly
         swift.set_position(z=tip_coords[tip_idx][2] + 4, speed=2, timeout=30, wait=True)  # acquire pipette
-        swift.set_position(z=tip_coords[tip_idx][2], speed=2, timeout=30, wait=True)  # acquire pipette... got it
+        swift.set_position(z=tip_coords[tip_idx][2], speed=1, timeout=30, wait=True)  # acquire pipette... got it
+        sleep(1)
+        swift.set_position(z=tip_coords[tip_idx][2] + 60, speed=2, timeout=30, wait=True)  # go back up
         sleep(0.1)
         swift.set_position(z=35.24, speed=200, timeout=30, wait=True)  # go back up
         sleep(1)
@@ -182,10 +184,12 @@ def main():
         # TODO - need to control the syringe pump stepper
         # extract solution
         syringe_pump_serial.write(b's\n')  # take the steppers out of sleep mode
-        sleep(0.1)
-        syringe_pump_serial.write(b'-\n')  # extract
-        sleep(5)
+        sleep(1)
+        syringe_pump_serial.write(b'+\n')  # extract
+        sleep(3)
 
+        swift.set_position(z=curr_solution_loc[2] + 60, speed=3, timeout=30, wait=True)  # go back up
+        sleep(0.1)
         swift.set_position(z=30, speed=200, timeout=30, wait=True)  # go back up
         sleep(1)
 
@@ -203,9 +207,11 @@ def main():
 
         # TODO - need to control the syringe pump stepper
         # dispense solution
-        syringe_pump_serial.write(b'+\n')  # dispense
-        sleep(5)
+        syringe_pump_serial.write(b'-\n')  # dispense
+        sleep(3)
 
+        swift.set_position(z=plate_coords[0][2] + 60, speed=3, timeout=30, wait=True)  # go back up
+        sleep(0.1)
         swift.set_position(z=25, speed=200, timeout=30, wait=True)  # go back up
         sleep(1)
 
@@ -238,7 +244,7 @@ def main():
         syringe_pump_serial.write(b'L\n')  # SOIL mode on
         sleep(0.1)
         syringe_pump_serial.write(b'+\n')  # dispense
-        sleep(5)
+        sleep(3)
         syringe_pump_serial.write(b'l\n')  # SOIL mode off
         sleep(0.1)
 
