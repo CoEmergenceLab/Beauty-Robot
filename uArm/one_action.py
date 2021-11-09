@@ -55,7 +55,7 @@ def main():
     sleep(1)
 
     # === INITIALIZE SERIAL COMMUNICATION WITH ARDUINO ===
-    syringe_pump_serial = serial_connect("/dev/cu.usbmodem1441201", 19200, timeout=10)
+    syringe_pump_serial = serial_connect("/dev/cu.usbmodem1411401", 19200, timeout=10)
     syringe_pump_serial.reset_output_buffer()
 
     # serial reader thread
@@ -73,12 +73,12 @@ def main():
 
     # === COORDINATES & AMOUNTS ===
     # pipette tip location coords
-    tip_coords = ((120, -101.31, -84.55), (120, -101.31, -84.55), (120, -101.31, -84.55))
+    tip_coords = ((120, -126.31, -56.55), (120, -126.31, -56.55), (120, -126.31, -56.55))
     tip_idx = 0
 
     # attractant/repellent locations and amounts (all amounts are in microliters)
     attractants = {
-        "peptone" : ({"concentration" : "high", "amount" : 20, "location" : (165, -103.78, -80.37)},
+        "peptone" : ({"concentration" : "high", "amount" : 20, "location" : (165, -125.78, -52.37)},
                     {"concentration" : "low", "amount" : 20, "location" : (125, -107.01, -41.37)},
                     {"concentration" : "high", "amount" : 5, "location" : (125, -103.78, -41.37)},
                     {"concentration" : "low", "amount" : 5, "location" : (125, -107.01, -41.37)}),
@@ -115,10 +115,10 @@ def main():
     }
 
     # plate locations
-    plate_coords = ((135, 0, -42), (90, 0, -42))
+    plate_coords = ((285, 0, -12), (290, 0, -12))
 
     # trash location
-    trash_coords = (300, -115, 50)
+    trash_coords = (300, -150, 50)
 
     # === LOAD WORLD MODEL ===
     print("loading world model...")
@@ -154,7 +154,7 @@ def main():
                            speed=200,
                            timeout=30,
                            wait=True)  # current pipette tip location
-        swift.set_position(z=tip_coords[tip_idx][2] + 19, speed=200, timeout=30, wait=True)  # acquire pipette
+        swift.set_position(z=tip_coords[tip_idx][2] + 19, speed=20, timeout=30, wait=True)  # acquire pipette
         swift.set_position(z=tip_coords[tip_idx][2] + 9, speed=2, wait=True)  # acquire pipette... slowly
         swift.set_position(z=tip_coords[tip_idx][2] + 4, speed=2, timeout=30, wait=True)  # acquire pipette
         swift.set_position(z=tip_coords[tip_idx][2], speed=1, timeout=30, wait=True)  # acquire pipette... got it
@@ -176,7 +176,7 @@ def main():
                            speed=200,
                            timeout=30,
                            wait=True)  # current attractant/repellent
-        swift.set_position(z=curr_solution_loc[2] + 19, speed=200, timeout=30, wait=True)
+        swift.set_position(z=curr_solution_loc[2] + 19, speed=20, timeout=30, wait=True)
         swift.set_position(z=curr_solution_loc[2] + 9, speed=3, timeout=30, wait=True)
         swift.set_position(z=curr_solution_loc[2] + 4, speed=3, timeout=30, wait=True)  # get closer
         swift.set_position(z=curr_solution_loc[2], speed=3, timeout=30, wait=True)  # ease in
@@ -190,7 +190,7 @@ def main():
 
         swift.set_position(z=curr_solution_loc[2] + 60, speed=3, timeout=30, wait=True)  # go back up
         sleep(0.1)
-        swift.set_position(z=30, speed=200, timeout=30, wait=True)  # go back up
+        swift.set_position(z=30, speed=20, timeout=30, wait=True)  # go back up
         sleep(1)
 
         # move arm to location on plate (that you get from rl controller)
@@ -200,7 +200,7 @@ def main():
                            z=25, speed=200,
                            timeout=30,
                            wait=True)  # current plate location
-        swift.set_position(z=plate_coords[0][2] + 19, speed=200, timeout=30, wait=True)
+        swift.set_position(z=plate_coords[0][2] + 19, speed=20, timeout=30, wait=True)
         swift.set_position(z=plate_coords[0][2] + 9, speed=3, timeout=30, wait=True)
         swift.set_position(z=plate_coords[0][2] + 4, speed=3, timeout=30, wait=True)  # get closer
         swift.set_position(z=plate_coords[0][2], speed=3, timeout=30, wait=True)  # get ready to drop
@@ -210,9 +210,9 @@ def main():
         syringe_pump_serial.write(b'-\n')  # dispense
         sleep(3)
 
-        swift.set_position(z=plate_coords[0][2] + 60, speed=3, timeout=30, wait=True)  # go back up
+        swift.set_position(z=plate_coords[0][2] + 40, speed=3, timeout=30, wait=True)  # go back up
         sleep(0.1)
-        swift.set_position(z=25, speed=200, timeout=30, wait=True)  # go back up
+        swift.set_position(z=50, speed=20, timeout=30, wait=True)  # go back up
         sleep(1)
 
         # move arm to trash location
@@ -222,7 +222,7 @@ def main():
                            speed=200,
                            timeout=30,
                            wait=True)  # current plate location
-        swift.set_position(z=trash_coords[2] + 19, speed=200, timeout=30, wait=True)
+        swift.set_position(z=trash_coords[2] + 19, speed=20, timeout=30, wait=True)
         swift.set_position(z=trash_coords[2], speed=5, timeout=30, wait=True)
 
         # TODO - connect pipette to servo
@@ -231,12 +231,12 @@ def main():
         sleep(1)
         swift.set_wrist(90, wait=True)
         sleep(1)
-        swift.set_position(z=25, speed=200, timeout=30, wait=True)  # go back up
+        swift.set_position(z=25, speed=20, timeout=30, wait=True)  # go back up
         sleep(1)
 
         # Go back to Home position
         print("moving arm back to home position...")
-        swift.set_position(*HOME, speed=100, wait=True)  # Home
+        swift.set_position(*HOME, speed=50, wait=True)  # Home
 
         print("dispensing soil remediatin solution...")
         # if image is considered more beautful to the AI than the previous image
