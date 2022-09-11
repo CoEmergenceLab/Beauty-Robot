@@ -10,6 +10,7 @@ import os
 import sys
 import serial
 import threading
+import cv2
 from time import sleep
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
 from uarm.wrapper import SwiftAPI
@@ -125,6 +126,7 @@ def main():
 
     # === SET UP IMAGE CAPTURE ===
     # use Nikon DSLR/Mirrorless camera as a webcam
+    # cap = cv2.VideoCapture(1)
     print("camera ready...")
 
     # === CAPTURE IMAGES, DO MODEL PREDICTION & CONTROLLER ACTIONS ===
