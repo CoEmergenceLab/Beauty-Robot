@@ -316,8 +316,8 @@ def main():
         sleep(10)
 
         # attach the uArm stepper motors
-        print("waking up the uArm...")
-        swift.send_cmd_sync("M17")
+        # print("waking up the uArm...")
+        # swift.send_cmd_sync("M17")
 
 
 if __name__ == "__main__":
