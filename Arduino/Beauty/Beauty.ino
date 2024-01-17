@@ -4,7 +4,7 @@
  * http://phylum.org
  * 
  * It does three things:
- * 1. Sends commands to a motor driver (Big Easy Driver) attache to a stepper motor that controls a
+ * 1. Sends commands to a motor driver (Big Easy Driver) attached to a stepper motor that controls a
  * linear actuator serving as a syringe pump to extract and dispense attracts and repellents onto a
  * petri dish containing pattern-forming bacteria.
  * 2. Lights the plate using an Adafruit DotStar LED strip.
